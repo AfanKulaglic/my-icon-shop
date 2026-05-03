@@ -44,10 +44,15 @@ export default function Editor() {
   const debugZones = useEditorStore((s) => s.debugZones);
   const toggleDebugZones = useEditorStore((s) => s.toggleDebugZones);
 
-  // Reset all editor state when switching to a different product
+  // Reset all editor state when switching to a different product.
+  // NOTE: we intentionally do NOT call setFabricApi(null) here.
+  // Clearing fabricApi would prevent handleAddToCart from reading the canvas
+  // directly (synchronously) at save time, forcing a race against the
+  // rAF-deferred textureURLs sync in FabricEditor. Instead we add
+  // key={product.id} to RightPanel/MobileEditor below so FabricEditor
+  // remounts (and calls onFabricReady again) when the product changes.
   useEffect(() => {
     resetEditor();
-    setFabricApi(null);
     setInitialCamera(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.id]);
@@ -315,6 +320,7 @@ export default function Editor() {
             <ShirtCanvas modelId={product.modelId} initialCamera={initialCamera} />
           </div>
           <RightPanel
+            key={product.id}
             fabricApi={fabricApi}
             onFabricReady={setFabricApi}
             model={model}
@@ -324,6 +330,7 @@ export default function Editor() {
         {/* Mobile Layout */}
         <div className="lg:hidden h-full">
           <MobileEditor 
+            key={product.id}
             fabricApi={fabricApi}
             onFabricReady={setFabricApi}
             model={model}
