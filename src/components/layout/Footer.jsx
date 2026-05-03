@@ -3,6 +3,22 @@ import { useContentStore } from "../../store/contentStore.js";
 import EditableText from "../admin/EditableText.jsx";
 import EditableIcon from "../admin/EditableIcon.jsx";
 
+// Renders a non-clickable link with a subtle "Coming soon" tooltip and badge.
+// Used for features that exist in the UI but are not yet implemented.
+function DemoLink({ children, className = "" }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 cursor-default select-none opacity-50 ${className}`}
+      title="Not available in this demo version"
+    >
+      {children}
+      <span className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full border border-white/20 text-white/40 leading-none">
+        soon
+      </span>
+    </span>
+  );
+}
+
 export default function Footer() {
   const getText = useContentStore((s) => s.getText);
   
@@ -48,14 +64,14 @@ export default function Footer() {
                 { id: "footer_social_facebook", iconId: "footer_social_facebook_icon" },
                 { id: "footer_social_linkedin", iconId: "footer_social_linkedin_icon" },
               ].map((social) => (
-                <a
+                <div
                   key={social.id}
-                  href="#"
-                  className="w-11 h-11 rounded-xl glass glass-hover grid place-items-center text-white/60 hover:text-accent transition-all duration-300 hover:scale-110"
+                  className="w-11 h-11 rounded-xl glass grid place-items-center text-white/25 cursor-default opacity-50"
+                  title="Not available in this demo version"
                   aria-label={getText(social.id)}
                 >
                   <EditableIcon id={social.iconId} className="w-5 h-5" />
-                </a>
+                </div>
               ))}
             </div>
           </div>
@@ -68,8 +84,8 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3 text-white/60">
               <li><Link to="/shop" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_shop_all" as="span" /></Link></li>
-              <li><Link to="/shop" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_shop_men_polos" as="span" /></Link></li>
-              <li><Link to="/shop" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_shop_women_polos" as="span" /></Link></li>
+              <li><Link to="/shop?category=man" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_shop_men_polos" as="span" /></Link></li>
+              <li><Link to="/shop?category=woman" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_shop_women_polos" as="span" /></Link></li>
               <li><Link to="/shop" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_shop_hoodies" as="span" /></Link></li>
               <li><Link to="/editor" className="hover:text-accent hover:translate-x-1 inline-block transition-all duration-300 font-semibold"><EditableText id="footer_shop_studio" as="span" /></Link></li>
             </ul>
@@ -82,11 +98,11 @@ export default function Footer() {
               <EditableText id="footer_help_title" as="span" />
             </h4>
             <ul className="space-y-3 text-white/60">
-              <li><a href="#" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_help_shipping" as="span" /></a></li>
-              <li><a href="#" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_help_returns" as="span" /></a></li>
-              <li><a href="#" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_help_size_guide" as="span" /></a></li>
-              <li><a href="#" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_help_faq" as="span" /></a></li>
-              <li><a href="#" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_help_contact" as="span" /></a></li>
+              <li><DemoLink><EditableText id="footer_help_shipping" as="span" /></DemoLink></li>
+              <li><DemoLink><EditableText id="footer_help_returns" as="span" /></DemoLink></li>
+              <li><DemoLink><EditableText id="footer_help_size_guide" as="span" /></DemoLink></li>
+              <li><DemoLink><EditableText id="footer_help_faq" as="span" /></DemoLink></li>
+              <li><Link to="/contact" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_help_contact" as="span" /></Link></li>
             </ul>
           </div>
 
@@ -97,11 +113,11 @@ export default function Footer() {
               <EditableText id="footer_company_title" as="span" />
             </h4>
             <ul className="space-y-3 text-white/60">
-              <li><Link to="/" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_company_about" as="span" /></Link></li>
-              <li><a href="#" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_company_careers" as="span" /></a></li>
-              <li><a href="#" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_company_press" as="span" /></a></li>
-              <li><a href="#" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_company_privacy" as="span" /></a></li>
-              <li><a href="#" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_company_terms" as="span" /></a></li>
+              <li><Link to="/about" className="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><EditableText id="footer_company_about" as="span" /></Link></li>
+              <li><DemoLink><EditableText id="footer_company_careers" as="span" /></DemoLink></li>
+              <li><DemoLink><EditableText id="footer_company_press" as="span" /></DemoLink></li>
+              <li><DemoLink><EditableText id="footer_company_privacy" as="span" /></DemoLink></li>
+              <li><DemoLink><EditableText id="footer_company_terms" as="span" /></DemoLink></li>
             </ul>
           </div>
 
@@ -116,17 +132,37 @@ export default function Footer() {
               as="p" 
               className="text-white/60 text-sm mb-4" 
             />
-            <form className="space-y-3">
+            <div className="space-y-3 opacity-50 pointer-events-none" title="Not available in this demo version">
               <input
                 type="email"
                 placeholder={getText("footer_newsletter_placeholder")}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-colors placeholder:text-white/30"
+                disabled
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm placeholder:text-white/30 cursor-not-allowed"
               />
-              <button className="w-full bg-gradient-to-r from-accent to-accent-light hover:from-accent-hover hover:to-accent text-white rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 hover:shadow-glow">
+              <button disabled className="w-full bg-gradient-to-r from-accent/50 to-accent-light/50 text-white/60 rounded-xl px-4 py-3 text-sm font-semibold cursor-not-allowed">
                 <EditableText id="footer_newsletter_button" as="span" />
               </button>
-            </form>
+            </div>
+            <p className="text-[10px] text-white/25 mt-2">Newsletter available in the full release.</p>
           </div>
+        </div>
+
+        {/* DEMO NOTICE */}
+        <div className="mb-8 flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-accent/20 bg-accent/5 backdrop-blur-sm">
+          <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center">
+            <svg className="w-3.5 h-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-accent/90 leading-snug">Demo Version</p>
+            <p className="text-[11px] text-white/40 leading-snug mt-0.5">
+              This is a demonstration build. Greyed-out links (Shipping, Returns, Careers, Privacy, Social, etc.) are placeholders for the full release.
+            </p>
+          </div>
+          <span className="flex-shrink-0 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border border-accent/30 text-accent/70">
+            Preview
+          </span>
         </div>
 
         {/* BOTTOM BAR */}
@@ -134,9 +170,9 @@ export default function Footer() {
           <div className="flex flex-wrap items-center gap-6 text-sm text-white/40">
             <p>© {new Date().getFullYear()} <EditableText id="footer_copyright" as="span" /></p>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-white transition-colors"><EditableText id="footer_privacy_link" as="span" /></a>
-              <a href="#" className="hover:text-white transition-colors"><EditableText id="footer_terms_link" as="span" /></a>
-              <a href="#" className="hover:text-white transition-colors"><EditableText id="footer_cookies_link" as="span" /></a>
+              <span className="opacity-40 cursor-default" title="Not available in this demo version"><EditableText id="footer_privacy_link" as="span" /></span>
+              <span className="opacity-40 cursor-default" title="Not available in this demo version"><EditableText id="footer_terms_link" as="span" /></span>
+              <span className="opacity-40 cursor-default" title="Not available in this demo version"><EditableText id="footer_cookies_link" as="span" /></span>
             </div>
           </div>
 
