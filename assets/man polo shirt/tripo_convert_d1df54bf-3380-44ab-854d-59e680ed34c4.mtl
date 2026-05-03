@@ -1,0 +1,16 @@
+# Blender 5.0.1 MTL File: 'None'
+# www.blender.org
+
+newmtl tripo_mat_d1df54bf-3380-44ab-854d-59e680ed34c4
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd whitepoloshirt3dmodel_basecolor.JPEG
+map_Ns whitepoloshirt3dmodel_roughness.JPEG
+map_Pr whitepoloshirt3dmodel_roughness.JPEG
+map_refl whitepoloshirt3dmodel_metallic.JPEG
+map_Pm whitepoloshirt3dmodel_metallic.JPEG
+map_Bump -bm 1.000000 whitepoloshirt3dmodel_normal.JPEG

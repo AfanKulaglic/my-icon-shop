@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Firebase Test</title>
+</head>
+<body>
+  <h1>Firebase Connection Test</h1>
+  <div id="status">Connecting...</div>
+  <div id="data"></div>
+  
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    
+    const config = {
+      apiKey: "AIzaSyBCaBkqahLU7Acqt0VbiC-j4IEjZrq-v1I",
+      authDomain: "chat-app-24ef7.firebaseapp.com",
+      databaseURL: "https://chat-app-24ef7-default-rtdb.firebaseio.com",
+      projectId: "chat-app-24ef7",
+      storageBucket: "chat-app-24ef7.appspot.com",
+      messagingSenderId: "65091768529",
+      appId: "1:65091768529:web:95d34e1f8c8d48d58df5f0"
+    };
+    
+    const app = initializeApp(config);
+    const db = getDatabase(app);
+    const contentRef = ref(db, 'siteContent');
+    
+    document.getElementById('status').textContent = 'Connected! Listening for changes...';
+    
+    onValue(contentRef, (snapshot) => {
+      const data = snapshot.val();
+      document.getElementById('data').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+      console.log('Firebase data:', data);
+    });
+  </script>
+</body>
+</html>
