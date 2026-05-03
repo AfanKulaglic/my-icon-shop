@@ -431,7 +431,7 @@ function OrderRow({ fbKey, order, onSelect, selected, onDeleted }) {
         </div>
       )}
 
-      {/* Fullscreen print modal */
+      {/* Fullscreen print modal */}
       {fullscreenItem && (
         <PrintFullscreenModal item={fullscreenItem} onClose={closeFullscreen} />
       )}
