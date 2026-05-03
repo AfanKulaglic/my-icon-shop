@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { getFirebaseDatabase } from "../../firebase/config.js";
-import { ref, onValue, update } from "firebase/database";
+import { ref, onValue, update, remove } from "firebase/database";
 import OrderModelViewer from "./OrderModelViewer.jsx";
 
 const STATUS_STYLES = {
@@ -194,9 +194,25 @@ function PrintFullscreenModal({ item, onClose }) {
   );
 }
 
-function OrderRow({ fbKey, order, onSelect, selected }) {
+function OrderRow({ fbKey, order, onSelect, selected, onDeleted }) {
   const [fullscreenItem, setFullscreenItem] = useState(null);
   const closeFullscreen = useCallback(() => setFullscreenItem(null), []);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    setDeleting(true);
+    try {
+      const db = getFirebaseDatabase();
+      await remove(ref(db, `orders/${fbKey}`));
+      onDeleted?.(fbKey);
+    } catch (err) {
+      console.warn("Delete failed:", err);
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
   return (
     <div
       onClick={() => onSelect(selected ? null : fbKey)}
@@ -344,7 +360,7 @@ function OrderRow({ fbKey, order, onSelect, selected }) {
 
           {/* Totals + payment */}
           <div className="flex items-start justify-between">
-            <div className="text-xs space-y-1">
+            <div className="text-xs space-y-1 flex-1">
               <div className="flex gap-3 text-white/50">
                 <span>Subtotal:</span><span className="text-white">${order.subtotal?.toFixed(2)}</span>
               </div>
@@ -367,13 +383,55 @@ function OrderRow({ fbKey, order, onSelect, selected }) {
               )}
             </div>
 
-            {/* Status changer */}
-            <StatusChanger fbKey={fbKey} currentStatus={order.status} />
+            {/* Status changer + Delete */}
+            <div className="flex flex-col items-end gap-3 flex-shrink-0 ml-4">
+              <StatusChanger fbKey={fbKey} currentStatus={order.status} />
+              <div className="flex flex-col items-end gap-1.5">
+                {!confirmDelete ? (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400/70 hover:bg-red-500/10 hover:text-red-400 hover:border-red-400/50 text-[10px] font-bold uppercase tracking-wider transition-all"
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete Order
+                  </button>
+                ) : (
+                  <div className="flex flex-col items-end gap-1.5 bg-red-500/10 border border-red-500/30 rounded-xl p-2.5">
+                    <p className="text-[10px] text-red-300 font-bold">Delete this order?</p>
+                    <p className="text-[9px] text-red-400/60">This cannot be undone.</p>
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setConfirmDelete(false); }}
+                        className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-white/50 hover:text-white text-[10px] font-bold transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleDelete}
+                        disabled={deleting}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-500/20 border border-red-400/40 text-red-300 hover:bg-red-500/30 text-[10px] font-bold transition-colors disabled:opacity-50"
+                      >
+                        {deleting ? (
+                          <div className="w-3 h-3 border border-red-300/30 border-t-red-300 rounded-full animate-spin" />
+                        ) : (
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        )}
+                        Confirm Delete
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Fullscreen print modal */}
+      {/* Fullscreen print modal */
       {fullscreenItem && (
         <PrintFullscreenModal item={fullscreenItem} onClose={closeFullscreen} />
       )}
@@ -546,6 +604,7 @@ export default function OrdersManager() {
             order={order}
             selected={selected === fbKey}
             onSelect={setSelected}
+            onDeleted={() => setSelected(null)}
           />
         ))}
       </div>
