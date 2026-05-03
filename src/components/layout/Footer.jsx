@@ -168,7 +168,7 @@ export default function Footer() {
         {/* BOTTOM BAR */}
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-wrap items-center gap-6 text-sm text-white/40">
-            <p>© {new Date().getFullYear()} <EditableText id="footer_copyright" as="span" /></p>
+            <p>© {new Date().getFullYear()} <EditableText id="footer_copyright" as="span" /> — All rights reserved. Developed by <span className="text-white/60 font-medium">devFactory</span></p>
             <div className="flex gap-6">
               <span className="opacity-40 cursor-default" title="Not available in this demo version"><EditableText id="footer_privacy_link" as="span" /></span>
               <span className="opacity-40 cursor-default" title="Not available in this demo version"><EditableText id="footer_terms_link" as="span" /></span>
