@@ -26,6 +26,7 @@ export default function Editor() {
   const model = getModelWithOverrides(product.modelId, overrides);
   const [fabricApi, setFabricApi] = useState(null);
   const [initialCamera, setInitialCamera] = useState(null);
+  const [selectedSize, setSelectedSize] = useState('M');
 
   // Load saved camera default for this model
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function Editor() {
   useEffect(() => {
     resetEditor();
     setInitialCamera(null);
+    setSelectedSize('M');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.id]);
 
@@ -77,9 +79,9 @@ export default function Editor() {
         allDesigns[state.selectedSide] = fabricApi.canvas.toJSON();
         allTextureURLs[state.selectedSide] = fabricApi.canvas.toDataURL({ format: 'png', multiplier: 1 });
       }
-      localStorage.setItem(`cart_edit:${product.id}`, JSON.stringify({ designs: allDesigns, shirtColor, textureURLs: allTextureURLs }));
+      localStorage.setItem(`cart_edit:${product.id}`, JSON.stringify({ designs: allDesigns, shirtColor, textureURLs: allTextureURLs, selectedSize }));
     } catch (e) {}
-    addToCart(product.id, shirtColor, 'M');
+    addToCart(product.id, shirtColor, selectedSize);
   };
 
   const handleCheckout = () => {
@@ -240,6 +242,11 @@ export default function Editor() {
           </div>
           
           <div className="h-6 lg:h-8 w-px bg-white/20 hidden lg:block" />
+
+          {/* Desktop: Size picker */}
+          <SizePicker value={selectedSize} onChange={setSelectedSize} />
+
+          <div className="h-6 lg:h-8 w-px bg-white/20 hidden lg:block" />
           
           {/* Mobile: price chip */}
           <div className="lg:hidden">
@@ -254,6 +261,8 @@ export default function Editor() {
               onAddToCart={handleAddToCart}
               onCheckout={handleCheckout}
               cartCount={cartCount}
+              selectedSize={selectedSize}
+              onSizeChange={setSelectedSize}
             />
           </div>
           
@@ -468,6 +477,31 @@ function MobileColorSwatches({ value, onChange, availableColors = [] }) {
   );
 }
 
+// Size picker for the desktop top bar
+function SizePicker({ value, onChange }) {
+  const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL'];
+  return (
+    <div className="hidden lg:flex items-center gap-2">
+      <span className="text-sm font-medium text-white/60">Size:</span>
+      <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+        {sizes.map((s) => (
+          <button
+            key={s}
+            onClick={() => onChange(s)}
+            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all duration-200 ${
+              value === s
+                ? 'bg-accent text-white shadow-sm shadow-accent/40'
+                : 'text-white/60 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Desktop zone-price breakdown shown in the top bar
 function ZonePriceDisplay({ product }) {
   const designs = useEditorStore((s) => s.designs);
@@ -532,7 +566,7 @@ function MobileZonePrice({ product }) {
 }
 
 // Mobile Actions Menu
-function MobileActionsMenu({ debugZones, onToggleDebugZones, onAddToCart, onCheckout, cartCount }) {
+function MobileActionsMenu({ debugZones, onToggleDebugZones, onAddToCart, onCheckout, cartCount, selectedSize = 'M', onSizeChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef(null);
   const [buttonRect, setButtonRect] = useState(null);
@@ -562,6 +596,25 @@ function MobileActionsMenu({ debugZones, onToggleDebugZones, onAddToCart, onChec
         }}
       >
         <div className="space-y-2">
+        {/* Size selector */}
+        <div className="pb-1">
+          <p className="text-[10px] text-white/40 uppercase tracking-wider mb-1.5 px-1">Size</p>
+          <div className="flex gap-1">
+            {['XS','S','M','L','XL','2XL'].map((s) => (
+              <button
+                key={s}
+                onClick={() => onSizeChange?.(s)}
+                className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                  selectedSize === s
+                    ? 'bg-accent text-white'
+                    : 'bg-white/10 text-white/60 hover:bg-white/20'
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
         <button
           onClick={() => {
             onToggleDebugZones();
