@@ -508,6 +508,8 @@ export default function Shop() {
                             <motion.img
                               src={product.image}
                               alt={product.name}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-cover"
                               animate={{
                                 scale: hoveredProduct === product.id ? 1.05 : 1

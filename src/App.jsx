@@ -1,20 +1,34 @@
 import { Routes, Route } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import Layout from "./components/layout/Layout.jsx";
-import Home from "./pages/Home.jsx";
-import Shop from "./pages/Shop.jsx";
-import Product from "./pages/Product.jsx";
-import Editor from "./pages/Editor.jsx";
-import Mash from "./pages/Mash.jsx";
-import Admin from "./pages/Admin.jsx";
-import HowToUseAdmin from "./pages/HowToUseAdmin.jsx";
-import Documentation from "./pages/Documentation.jsx";
-import About from "./pages/About.jsx";
-import Contact from "./pages/Contact.jsx";
-import Cart from "./pages/Cart.jsx";
-import Wishlist from "./pages/Wishlist.jsx";
-import Checkout from "./pages/Checkout.jsx";
 import { useContentStore } from "./store/contentStore.js";
+
+// Eagerly load the home page (most common first hit)
+import Home from "./pages/Home.jsx";
+
+// Lazy-load everything else so Three.js, Fabric, Admin code, etc.
+// are only downloaded when the user actually navigates there
+const Shop        = lazy(() => import("./pages/Shop.jsx"));
+const Product     = lazy(() => import("./pages/Product.jsx"));
+const Editor      = lazy(() => import("./pages/Editor.jsx"));
+const Mash        = lazy(() => import("./pages/Mash.jsx"));
+const Admin       = lazy(() => import("./pages/Admin.jsx"));
+const HowToUseAdmin  = lazy(() => import("./pages/HowToUseAdmin.jsx"));
+const Documentation  = lazy(() => import("./pages/Documentation.jsx"));
+const About       = lazy(() => import("./pages/About.jsx"));
+const Contact     = lazy(() => import("./pages/Contact.jsx"));
+const Cart        = lazy(() => import("./pages/Cart.jsx"));
+const Wishlist    = lazy(() => import("./pages/Wishlist.jsx"));
+const Checkout    = lazy(() => import("./pages/Checkout.jsx"));
+
+// Minimal full-screen spinner shown while a lazy chunk loads
+function PageLoader() {
+  return (
+    <div className="fixed inset-0 bg-primary grid place-items-center z-50">
+      <div className="w-9 h-9 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 export default function App() {
   const initFirebase = useContentStore((s) => s.initFirebase);
@@ -25,6 +39,7 @@ export default function App() {
   }, [initFirebase]);
 
   return (
+    <Suspense fallback={<PageLoader />}>
     <Routes>
       {/* Editor + Mash + Shop use their own full-screen chrome */}
       <Route path="/editor/:id?" element={<Editor />} />
@@ -47,5 +62,6 @@ export default function App() {
         <Route path="*" element={<Home />} />
       </Route>
     </Routes>
+    </Suspense>
   );
 }
