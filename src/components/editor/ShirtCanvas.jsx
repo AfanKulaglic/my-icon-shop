@@ -488,6 +488,12 @@ vec4 sampleDecal(int i, vec3 surfNormal) {
     let bestCount = 0;
     c.traverse((child) => {
       if (child.isMesh) {
+        // Clone geometry so we don't mutate the cached original, then
+        // (re)compute smooth vertex normals. obj2gltf drops normals when
+        // the MTL is missing, so without this the custom lighting shader
+        // sees zero normals and the mesh renders flat gray.
+        child.geometry = child.geometry.clone();
+        child.geometry.computeVertexNormals();
         child.material = bodyMaterial;
         const count = child.geometry?.attributes?.position?.count || 0;
         if (count > bestCount) {
