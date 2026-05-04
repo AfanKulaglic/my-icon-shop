@@ -54,9 +54,13 @@ export default function ShirtCanvas({ modelId, editable = false, editingSide = n
         {/* IBL — soft studio env map drives realistic reflections at low intensity */}
         <Environment preset="studio" background={false} />
         {/* Soft base fill so unlit areas aren't pure black */}
-        <ambientLight intensity={0.35} />
-        {/* Single key light — upper-right front, moderate intensity */}
-        <directionalLight position={[4, 6, 3]} intensity={1.0} />
+        <ambientLight intensity={0.4} />
+        {/* Key light — upper-right front */}
+        <directionalLight position={[4, 6, 3]} intensity={1.1} />
+        {/* Soft fill from upper-left to reduce flat look */}
+        <directionalLight position={[-3, 4, 2]} intensity={0.35} />
+        {/* Subtle rim from behind to separate model from background */}
+        <directionalLight position={[0, -2, -4]} intensity={0.15} />
         <Suspense fallback={<LoadingBox />}>
           <Bounds fit clip observe margin={1.2}>
             <Center>
@@ -295,31 +299,41 @@ function Shirt({ model, editable, editingSide, selectedSide, cameraTargetRef, de
   }, [model.maps?.normal]);
 
   // Procedural cotton weave normal map — generated once from a canvas,
-  // no image file needed. Simulates the cross-section bump of warp/weft threads.
+  // no image file needed. Simulates warp/weft thread cross-sections with
+  // a realistic interlocking pattern.
   const cottonNormalMap = useMemo(() => {
-    const size = 256;
+    const size = 512;
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
     const imageData = ctx.createImageData(size, size);
     const d = imageData.data;
-    const T = 5; // thread width in pixels
+    const T = 12; // thread width in pixels — bigger = more visible weave
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
         const tx = Math.floor(x / T);
         const ty = Math.floor(y / T);
-        const fx = (x % T) / T; // 0..1 within thread
+        const fx = (x % T) / T; // 0..1 within thread cell
         const fy = (y % T) / T;
         const isWarp = (tx + ty) % 2 === 0;
-        // Thread cross-section: sinusoidal bump
+        // Primary thread bump
         let nx = 0, ny = 0;
         if (isWarp) {
-          nx = Math.sin((fx - 0.5) * Math.PI) * 0.35;
+          // Warp thread runs along Y — bump in X
+          nx = Math.sin((fx - 0.5) * Math.PI) * 0.55;
+          // Thread also rises over crossing point
+          ny = Math.sin((fy - 0.5) * Math.PI) * 0.08;
         } else {
-          ny = Math.sin((fy - 0.5) * Math.PI) * 0.35;
+          // Weft thread runs along X — bump in Y
+          ny = Math.sin((fy - 0.5) * Math.PI) * 0.55;
+          nx = Math.sin((fx - 0.5) * Math.PI) * 0.08;
         }
-        const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
+        // Subtle high-freq micro-roughness on top
+        const micro = 0.06;
+        nx += (Math.sin(x * 1.7) * Math.cos(y * 2.3)) * micro;
+        ny += (Math.cos(x * 2.1) * Math.sin(y * 1.9)) * micro;
+        const nz = Math.sqrt(Math.max(0.01, 1 - nx * nx - ny * ny));
         const i = (y * size + x) * 4;
         d[i]     = Math.round((nx * 0.5 + 0.5) * 255);
         d[i + 1] = Math.round((ny * 0.5 + 0.5) * 255);
@@ -331,7 +345,9 @@ function Shirt({ model, editable, editingSide, selectedSide, cameraTargetRef, de
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = THREE.RepeatWrapping;
     tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(50, 50); // fine cotton scale
+    tex.repeat.set(28, 28); // visible weave scale
+    tex.generateMipmaps = true;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
     return tex;
   }, []);
 
@@ -360,23 +376,23 @@ function Shirt({ model, editable, editingSide, selectedSide, cameraTargetRef, de
     uDecalTex2:      { value: null },
   }).current;
 
-  // Fabric material — MeshPhysicalMaterial with gentle sheen.
-  // roughness 0.7: diffuse highlight visible when rotating but not shiny.
-  // sheen 0.25: subtle retroreflective rim typical of woven fabric.
-  // envMapIntensity 0.9: IBL contributes realistic indirect reflections.
+  // Fabric material — MeshPhysicalMaterial with visible sheen.
+  // roughness 0.72: enough diffuse spread to look matte but IBL still contributes.
+  // sheen 0.55: clear retroreflective rim typical of woven cotton/piqué.
+  // normalScale 0.65: weave clearly visible when rotating.
   const bodyMaterial = useMemo(() => {
     const m = new THREE.MeshPhysicalMaterial({
       color: new THREE.Color(shirtColor),
       map: diffuseMap || null,
-      roughness: roughnessMap ? 1.0 : 0.82,
+      roughness: roughnessMap ? 1.0 : 0.72,
       roughnessMap: roughnessMap || null,
       metalness: metallicMap ? 1.0 : 0.0,
       metalnessMap: metallicMap || null,
-      envMapIntensity: 0.9,
+      envMapIntensity: 1.1,
       normalMap: cottonNormalMap,
-      normalScale: new THREE.Vector2(0.45, 0.45),
-      sheen: 0.25,
-      sheenRoughness: 0.75,
+      normalScale: new THREE.Vector2(0.65, 0.65),
+      sheen: 0.55,
+      sheenRoughness: 0.55,
       sheenColor: new THREE.Color(shirtColor),
     });
     m.onBeforeCompile = (shader) => {
