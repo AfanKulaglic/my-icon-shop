@@ -82,8 +82,10 @@ function PageLoader() {
 export default function App() {
   const initFirebase = useContentStore((s) => s.initFirebase);
 
-  // Initialize Firebase on app mount
   useEffect(() => {
+    // Remove the static HTML loader now that React has painted the first frame
+    const el = document.getElementById('html-loader');
+    if (el) el.remove();
     initFirebase();
   }, [initFirebase]);
 

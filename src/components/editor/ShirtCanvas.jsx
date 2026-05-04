@@ -57,9 +57,7 @@ export default function ShirtCanvas({ modelId, editable = false, editingSide = n
         <ambientLight intensity={0.35} />
         {/* Single key light — upper-right front, moderate intensity */}
         <directionalLight position={[4, 6, 3]} intensity={1.0} />
-        {/* GLB is preloaded in EditorRoute so it's usually cached by the time
-            the canvas renders. fallback=null avoids a second spinner. */}
-        <Suspense fallback={null}>
+        <Suspense fallback={<LoadingBox />}>
           <Bounds fit clip observe margin={1.2}>
             <Center>
               <Shirt 
