@@ -125,7 +125,7 @@ export default function Shop() {
 
         <Link to="/" className="flex items-center gap-2 lg:gap-3 group relative z-10">
           <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-accent to-secondary flex items-center justify-center shadow-lg shadow-accent/20 group-hover:shadow-glow transition-all duration-300">
-            <img src="/images/logo.png" alt="my-icon.shop" className="w-5 h-5 lg:w-6 lg:h-6 transition-transform duration-300 group-hover:scale-110" />
+            <img src="/images/logo.webp" alt="my-icon.shop" className="w-5 h-5 lg:w-6 lg:h-6 transition-transform duration-300 group-hover:scale-110" />
           </div>
           <span className="font-heading text-base lg:text-lg font-bold hidden sm:block">
             <span className="bg-gradient-to-r from-white via-accent-light to-white bg-clip-text text-transparent group-hover:from-accent-light group-hover:via-secondary group-hover:to-accent-light transition-all duration-500">my-icon</span>
@@ -222,7 +222,7 @@ export default function Shop() {
 
               <Link to="/" className="flex items-center gap-3 group">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-secondary flex items-center justify-center shadow-lg shadow-accent/20 group-hover:shadow-glow transition-all duration-300">
-                  <img src="/images/logo.png" alt="my-icon.shop" className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
+                  <img src="/images/logo.webp" alt="my-icon.shop" className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
                 </div>
                 <span className="font-heading text-xl font-bold tracking-tight">
                   <span className="bg-gradient-to-r from-white via-accent-light to-white bg-clip-text text-transparent group-hover:from-accent-light group-hover:via-secondary group-hover:to-accent-light transition-all duration-500">my-icon</span>

@@ -1053,7 +1053,7 @@ export default function Home() {
           >
             {/* Featured image - Full bleed, no card */}
             <img 
-              src="/images/featured-couple.png" 
+              src="/images/featured-couple.webp" 
               alt="Featured Products" 
               loading="lazy"
               decoding="async"

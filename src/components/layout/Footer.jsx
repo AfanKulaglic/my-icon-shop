@@ -36,7 +36,7 @@ export default function Footer() {
           <div className="lg:col-span-4">
             <Link to="/" className="inline-flex items-center gap-3 mb-6 group">
               <img 
-                src="/images/logo.png" 
+                src="/images/logo.webp" 
                 alt="my-icon.shop" 
                 className="h-12 w-auto transition-transform duration-300 group-hover:scale-110"
               />

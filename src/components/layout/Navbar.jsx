@@ -232,7 +232,7 @@ export default function Navbar() {
                 className="flex items-center gap-4 group absolute left-1/2 -translate-x-1/2"
               >
                 <img 
-                  src="/images/logo.png" 
+                  src="/images/logo.webp" 
                   alt="my-icon.shop" 
                   className="h-16 w-auto transition-transform duration-300 group-hover:scale-110"
                 />

@@ -7,7 +7,7 @@ export const products = [
     modelId: "man-polo-shirt",
     colors: ["#ffffff", "#0A1A17", "#FF6A00", "#1f2937"],
     sizes: ["S", "M", "L", "XL"],
-    image: "/models/man-polo-shirt/main.jpg",
+    image: "/models/man-polo-shirt/main.webp",
     description:
       "Classic men's polo. Soft-touch piqué cotton, ribbed collar.",
   },
@@ -19,7 +19,7 @@ export const products = [
     modelId: "women-polo-shirt",
     colors: ["#ffffff", "#0A1A17", "#FF6A00", "#f43f5e"],
     sizes: ["XS", "S", "M", "L"],
-    image: "/models/women-polo-shirt/main.jpg",
+    image: "/models/women-polo-shirt/main.webp",
     description:
       "Tailored women's polo. Soft-touch piqué cotton, fitted silhouette.",
   },
@@ -31,7 +31,7 @@ export const products = [
     modelId: "man-hoodie",
     colors: ["#000000", "#1f2937", "#374151", "#FF6A00", "#ffffff"],
     sizes: ["S", "M", "L", "XL", "XXL"],
-    image: "/models/man-hoodie/main.jpg",
+    image: "/models/man-hoodie/main.webp",
     description:
       "Premium men's hoodie. Heavyweight cotton blend, adjustable drawstring hood.",
   },
@@ -43,7 +43,7 @@ export const products = [
     modelId: "man-tshirt",
     colors: ["#ffffff", "#000000", "#1f2937", "#6366F1", "#EC4899"],
     sizes: ["S", "M", "L", "XL", "XXL"],
-    image: "/models/man-tshirt/main.jpg",
+    image: "/models/man-tshirt/main.webp",
     description:
       "Classic men's t-shirt. Premium cotton, comfortable fit, perfect for custom designs.",
   },
@@ -55,7 +55,7 @@ export const products = [
     modelId: "women-tshirt",
     colors: ["#ffffff", "#000000", "#f43f5e", "#8b5cf6", "#06b6d4"],
     sizes: ["XS", "S", "M", "L", "XL"],
-    image: "/models/women-tshirt/main.jpg",
+    image: "/models/women-tshirt/main.webp",
     description:
       "Stylish women's t-shirt. Soft cotton blend, flattering fit, ideal for personalization.",
   },
@@ -67,7 +67,7 @@ export const products = [
     modelId: "baseball-cap",
     colors: ["#ffffff", "#000000", "#1f2937", "#FF6A00", "#6366F1"],
     sizes: ["One Size"],
-    image: "/models/baseball-cap/main.jpg",
+    image: "/models/baseball-cap/main.webp",
     description:
       "Classic baseball cap. Premium cotton twill, adjustable strap, perfect for custom embroidery.",
   },
@@ -79,7 +79,7 @@ export const products = [
     modelId: "bag",
     colors: ["#f5f0e8", "#000000", "#1f2937", "#6366F1", "#f43f5e"],
     sizes: ["One Size"],
-    image: "/models/bag/main.jpg",
+    image: "/models/bag/main.webp",
     description:
       "Canvas tote bag. Durable cotton canvas, spacious design, perfect for custom prints.",
   },

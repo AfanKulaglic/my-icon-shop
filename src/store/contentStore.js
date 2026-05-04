@@ -171,8 +171,8 @@ const defaultContent = {
     
     // Images (URLs)
     hero_video: "/videos/Modern 3D Print Shop Promo_720p.mp4",
-    featured_image: "/images/featured-couple.png",
-    logo_image: "/images/logo.png",
+    featured_image: "/images/featured-couple.webp",
+    logo_image: "/images/logo.webp",
     
     // Icons (Iconify format: prefix:name)
     feature1_icon: "mdi:cube-outline",

@@ -69,7 +69,7 @@ export default function MobileNav() {
 
           <Link to="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 group z-10">
             <motion.img 
-              src="/images/logo.png" 
+              src="/images/logo.webp" 
               alt="my-icon.shop" 
               animate={{
                 height: isScrolled ? '28px' : '32px'
