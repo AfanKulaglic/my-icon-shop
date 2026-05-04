@@ -56,31 +56,25 @@ export default function App() {
   }, [initFirebase]);
 
   return (
-    <Routes>
-      {/* Editor + Mash: single Suspense so chunk download and model load share one spinner */}
-      <Route path="/editor/:id?" element={<Suspense fallback={<PageLoader />}><Editor /></Suspense>} />
-      <Route path="/mash/:modelId?" element={<Suspense fallback={<PageLoader />}><Mash /></Suspense>} />
-
-      {/* Everything else */}
-      <Suspense fallback={<PageLoader />}>
-      <Route path="/shop" element={<Shop />} />
-      <Route path="/cart" element={<Cart />} />
-      <Route path="/wishlist" element={<Wishlist />} />
-      <Route path="/checkout" element={<Checkout />} />
-      
-      {/* Admin panel */}
-      <Route path="/admin" element={<Admin />} />
-      <Route path="/howtouseadmin" element={<HowToUseAdmin />} />
-      <Route path="/documentation" element={<Documentation />} />
-
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/product/:id" element={<Product />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="*" element={<Home />} />
-      </Route>
-      </Suspense>
-    </Routes>
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route path="/editor/:id?" element={<Editor />} />
+        <Route path="/mash/:modelId?" element={<Mash />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/howtouseadmin" element={<HowToUseAdmin />} />
+        <Route path="/documentation" element={<Documentation />} />
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/product/:id" element={<Product />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="*" element={<Home />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 }
