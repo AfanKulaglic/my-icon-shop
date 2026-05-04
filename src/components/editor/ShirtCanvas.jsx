@@ -1,12 +1,26 @@
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { OrbitControls, Environment, Center, Bounds, Html } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, Environment, Center, Bounds, Html, useGLTF } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { useEditorStore } from "../../store/editorStore.js";
 import { getModelWithOverrides, SIDES } from "../../utils/models.js";
 import { usePrintAreasOverride } from "../../hooks/usePrintAreasOverride.js";
+
+// Use Google's CDN for the Draco decoder — avoids version-mismatch hangs
+// with locally-copied decoder files.
+useGLTF.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+
+// Preload all models so they're cached before the user opens the editor.
+const GLB_PATHS = [
+  '/models/man-polo-shirt/base.glb',
+  '/models/women-polo-shirt/base.glb',
+  '/models/man-hoodie/base.glb',
+  '/models/man-tshirt/base.glb',
+  '/models/women-tshirt/base.glb',
+  '/models/baseball-cap/base.glb',
+  '/models/bag/base.glb',
+];
+GLB_PATHS.forEach((path) => useGLTF.preload(path));
 
 const SIDE_COLORS = {
   front: "#ff6a00",
@@ -255,12 +269,8 @@ function Shirt({ model, editable, editingSide, selectedSide, cameraTargetRef, de
   const groupRef = useRef();
   const meshRef = useRef(null);
 
-  // GLB geometry (Draco-compressed)
-  const gltf = useLoader(GLTFLoader, model.glb, (loader) => {
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('/draco/');
-    loader.setDRACOLoader(dracoLoader);
-  });
+  // GLB geometry (Draco-compressed, decoded via useGLTF)
+  const gltf = useGLTF(model.glb);
 
   // Load PBR texture maps if the model provides them, otherwise fall back to procedural cotton
   const diffuseMap = useMemo(() => {
