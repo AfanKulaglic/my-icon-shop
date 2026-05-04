@@ -1,23 +1,22 @@
-// Optimizes all GLB models:
-//   1. dedup  — remove duplicate accessors/meshes
-//   2. weld   — merge nearby vertices (improves simplification quality)
-//   3. simplify — reduce to ~10% of triangles using meshoptimizer
-//   4. re-compress with Draco at level 10 via gltf-pipeline
+// Re-encodes all GLB models from Draco → EXT_meshopt_compression.
+// Meshopt decoder is ~20KB pure JS (bundled in three.js) vs Draco's 500KB WASM
+// from a CDN — much faster to initialize on mobile CPUs.
+//
+// Models are already simplified (10% triangles from a previous run).
+// This pass only re-encodes: dedup + reorder (cache locality) + quantize + meshopt.
 //
 // Run: node scripts/optimize-models.js
-// Expects base.glb files to already exist (run convert-to-glb.js first).
 
 import { NodeIO } from "@gltf-transform/core";
-import { KHRDracoMeshCompression } from "@gltf-transform/extensions";
-import { dedup, weld, simplify } from "@gltf-transform/functions";
-import { MeshoptSimplifier } from "meshoptimizer";
+import { KHRDracoMeshCompression, EXTMeshoptCompression } from "@gltf-transform/extensions";
+import { dedup, reorder, quantize } from "@gltf-transform/functions";
+import { MeshoptEncoder, MeshoptDecoder } from "meshoptimizer";
 import { createRequire } from "module";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const require = createRequire(import.meta.url);
-const gltfPipeline = require("gltf-pipeline");
 const draco3d = require("draco3d");
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -33,73 +32,55 @@ const slugs = [
   "bag",
 ];
 
-await MeshoptSimplifier.ready;
+await MeshoptEncoder.ready;
+await MeshoptDecoder.ready;
 
-// NodeIO with Draco READ support (to decode the existing compressed GLBs)
 const decoderModule = await draco3d.createDecoderModule({});
 const encoderModule = await draco3d.createEncoderModule({});
-const ioWithDraco = new NodeIO()
+
+// IO that can READ existing Draco-compressed GLBs
+const ioRead = new NodeIO()
   .registerExtensions([KHRDracoMeshCompression])
   .registerDependencies({
     "draco3d.decoder": decoderModule,
     "draco3d.encoder": encoderModule,
   });
-// Plain IO used for writing — no Draco, so gltf-pipeline can add it fresh
-const ioPlain = new NodeIO();
+
+// IO that WRITES meshopt-compressed GLBs
+const ioWrite = new NodeIO()
+  .registerExtensions([EXTMeshoptCompression])
+  .registerDependencies({
+    "meshopt.encoder": MeshoptEncoder,
+    "meshopt.decoder": MeshoptDecoder,
+  });
 
 for (const slug of slugs) {
   const glbPath = join(modelsDir, slug, "base.glb");
   if (!existsSync(glbPath)) { console.warn(`  SKIP — ${glbPath} not found`); continue; }
 
   const beforeKB = (readFileSync(glbPath).length / 1024).toFixed(0);
-  console.log(`  Optimizing ${slug} (${beforeKB} KB)...`);
+  console.log(`  Re-encoding ${slug} (${beforeKB} KB Draco → meshopt)...`);
   const t = Date.now();
 
-  // Load (Draco-decode on read)
-  const document = await ioWithDraco.readBinary(new Uint8Array(readFileSync(glbPath)));
+  // Read and Draco-decode
+  const document = await ioRead.readBinary(new Uint8Array(readFileSync(glbPath)));
 
-  // Count triangles before
-  let trisBefore = 0;
-  document.getRoot().listMeshes().forEach(mesh =>
-    mesh.listPrimitives().forEach(prim => {
-      const idx = prim.getIndices();
-      trisBefore += idx ? idx.getCount() / 3 : (prim.getAttribute("POSITION")?.getCount() || 0) / 3;
-    })
-  );
-
-  // Transform: dedup → weld → simplify to 10%
+  // Optimize for meshopt: dedup, reorder vertices for cache locality, quantize positions/normals
   await document.transform(
     dedup(),
-    weld({ tolerance: 1e-4 }),
-    simplify({ simplifier: MeshoptSimplifier, ratio: 0.10, error: 0.005 }),
+    reorder({ encoder: MeshoptEncoder }),
+    quantize(),
   );
 
-  // Count triangles after
-  let trisAfter = 0;
-  document.getRoot().listMeshes().forEach(mesh =>
-    mesh.listPrimitives().forEach(prim => {
-      const idx = prim.getIndices();
-      trisAfter += idx ? idx.getCount() / 3 : (prim.getAttribute("POSITION")?.getCount() || 0) / 3;
-    })
-  );
+  // Enable meshopt compression on write
+  document.createExtension(EXTMeshoptCompression).setRequired(true);
 
-  // Strip the Draco extension so the plain writer doesn't try to re-encode it
-  document.getRoot().listExtensionsUsed().forEach(ext => {
-    if (ext.extensionName === 'KHR_draco_mesh_compression') ext.dispose();
-  });
-
-  // Write plain (uncompressed) GLB, then gltf-pipeline adds fresh Draco
-  const simplified = await ioPlain.writeBinary(document);
-
-  // Re-compress with Draco level 10
-  const { glb } = await gltfPipeline.processGlb(Buffer.from(simplified), {
-    dracoOptions: { compressionLevel: 10 },
-  });
-
-  writeFileSync(glbPath, glb);
+  // Write meshopt-compressed GLB
+  const glb = await ioWrite.writeBinary(document);
+  writeFileSync(glbPath, Buffer.from(glb));
 
   const afterKB = (glb.length / 1024).toFixed(0);
-  console.log(`  ✓ ${slug}: ${beforeKB} KB → ${afterKB} KB | triangles: ${Math.round(trisBefore/1000)}k → ${Math.round(trisAfter/1000)}k (${Math.round((1-trisAfter/trisBefore)*100)}% fewer) [${Date.now()-t}ms]`);
+  console.log(`  ✓ ${slug}: ${beforeKB} KB (Draco) → ${afterKB} KB (meshopt) [${Date.now()-t}ms]`);
 }
 
 console.log("\nDone. Commit public/models/*/base.glb");

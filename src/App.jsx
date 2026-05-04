@@ -6,8 +6,8 @@ import { useGLTF } from "@react-three/drei";
 import { findProduct, products } from "./utils/products.js";
 import { models } from "./utils/models.js";
 
-// Set the Draco decoder path once at module scope.
-useGLTF.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+// Models are plain quantized GLBs (no Draco). No decoder path needed.
+// Vercel Edge serves them with Brotli compression (~150-200KB on wire).
 
 // Eagerly load the home page (most common first hit)
 import Home from "./pages/Home.jsx";
