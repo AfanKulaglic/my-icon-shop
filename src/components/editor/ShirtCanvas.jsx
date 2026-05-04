@@ -6,21 +6,9 @@ import { useEditorStore } from "../../store/editorStore.js";
 import { getModelWithOverrides, SIDES } from "../../utils/models.js";
 import { usePrintAreasOverride } from "../../hooks/usePrintAreasOverride.js";
 
-// Use Google's CDN for the Draco decoder — avoids version-mismatch hangs
-// with locally-copied decoder files.
-useGLTF.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
-
-// Preload all models so they're cached before the user opens the editor.
-const GLB_PATHS = [
-  '/models/man-polo-shirt/base.glb',
-  '/models/women-polo-shirt/base.glb',
-  '/models/man-hoodie/base.glb',
-  '/models/man-tshirt/base.glb',
-  '/models/women-tshirt/base.glb',
-  '/models/baseball-cap/base.glb',
-  '/models/bag/base.glb',
-];
-GLB_PATHS.forEach((path) => useGLTF.preload(path));
+// Use Google's CDN for the Draco decoder — avoids version-mismatch hangs.
+// Decoder path + preloads are set in App.jsx so they fire immediately on
+// app start, not after the lazy Editor chunk downloads.
 
 const SIDE_COLORS = {
   front: "#ff6a00",

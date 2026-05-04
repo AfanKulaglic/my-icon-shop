@@ -2,6 +2,20 @@ import { Routes, Route } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import Layout from "./components/layout/Layout.jsx";
 import { useContentStore } from "./store/contentStore.js";
+import { useGLTF } from "@react-three/drei";
+
+// Start Draco decoder + model preloads immediately so GLBs are cached
+// before the user ever opens the editor.
+useGLTF.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+[
+  '/models/man-polo-shirt/base.glb',
+  '/models/women-polo-shirt/base.glb',
+  '/models/man-hoodie/base.glb',
+  '/models/man-tshirt/base.glb',
+  '/models/women-tshirt/base.glb',
+  '/models/baseball-cap/base.glb',
+  '/models/bag/base.glb',
+].forEach((p) => useGLTF.preload(p));
 
 // Eagerly load the home page (most common first hit)
 import Home from "./pages/Home.jsx";
@@ -25,7 +39,10 @@ const Checkout    = lazy(() => import("./pages/Checkout.jsx"));
 function PageLoader() {
   return (
     <div className="fixed inset-0 bg-primary grid place-items-center z-50">
-      <div className="w-9 h-9 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-9 h-9 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        <p className="text-white/40 text-sm">Loading 3D model…</p>
+      </div>
     </div>
   );
 }
@@ -39,11 +56,13 @@ export default function App() {
   }, [initFirebase]);
 
   return (
-    <Suspense fallback={<PageLoader />}>
     <Routes>
-      {/* Editor + Mash + Shop use their own full-screen chrome */}
-      <Route path="/editor/:id?" element={<Editor />} />
-      <Route path="/mash/:modelId?" element={<Mash />} />
+      {/* Editor + Mash: single Suspense so chunk download and model load share one spinner */}
+      <Route path="/editor/:id?" element={<Suspense fallback={<PageLoader />}><Editor /></Suspense>} />
+      <Route path="/mash/:modelId?" element={<Suspense fallback={<PageLoader />}><Mash /></Suspense>} />
+
+      {/* Everything else */}
+      <Suspense fallback={<PageLoader />}>
       <Route path="/shop" element={<Shop />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/wishlist" element={<Wishlist />} />
@@ -61,7 +80,7 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<Home />} />
       </Route>
+      </Suspense>
     </Routes>
-    </Suspense>
   );
 }
