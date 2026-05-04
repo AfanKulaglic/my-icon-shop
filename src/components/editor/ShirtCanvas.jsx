@@ -2,7 +2,8 @@ import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { OrbitControls, Environment, Center, Bounds, Html } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { useEditorStore } from "../../store/editorStore.js";
 import { getModelWithOverrides, SIDES } from "../../utils/models.js";
 import { usePrintAreasOverride } from "../../hooks/usePrintAreasOverride.js";
@@ -254,8 +255,12 @@ function Shirt({ model, editable, editingSide, selectedSide, cameraTargetRef, de
   const groupRef = useRef();
   const meshRef = useRef(null);
 
-  // OBJ geometry
-  const obj = useLoader(OBJLoader, model.obj);
+  // GLB geometry (Draco-compressed)
+  const gltf = useLoader(GLTFLoader, model.glb, (loader) => {
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('/draco/');
+    loader.setDRACOLoader(dracoLoader);
+  });
 
   // Load PBR texture maps if the model provides them, otherwise fall back to procedural cotton
   const diffuseMap = useMemo(() => {
@@ -478,7 +483,7 @@ vec4 sampleDecal(int i, vec3 surfNormal) {
   // Apply body material + capture the largest sub-mesh as the click
   // target.
   const cloned = useMemo(() => {
-    const c = obj.clone(true);
+    const c = gltf.scene.clone(true);
     let best = null;
     let bestCount = 0;
     c.traverse((child) => {
@@ -493,7 +498,7 @@ vec4 sampleDecal(int i, vec3 surfNormal) {
     });
     meshRef.current = best;
     return c;
-  }, [obj, bodyMaterial]);
+  }, [gltf, bodyMaterial]);
 
   // Phase-2 baker not yet implemented — export still uses per-side
   // PNGs + decal manifest.

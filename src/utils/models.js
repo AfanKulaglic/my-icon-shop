@@ -27,6 +27,7 @@ export const models = {
     id: "man-polo-shirt",
     label: "Men's Polo",
     obj: "/models/man-polo-shirt/base.obj",
+    glb: "/models/man-polo-shirt/base.glb",
     maps: {
       // No textures - using default cotton material (same as women's polo)
     },
@@ -41,6 +42,7 @@ export const models = {
     id: "women-polo-shirt",
     label: "Women's Polo",
     obj: "/models/women-polo-shirt/base.obj",
+    glb: "/models/women-polo-shirt/base.glb",
     maps: {
       // No textures - using default cotton material
     },
@@ -55,6 +57,7 @@ export const models = {
     id: "man-hoodie",
     label: "Men's Hoodie",
     obj: "/models/man-hoodie/base.obj",
+    glb: "/models/man-hoodie/base.glb",
     maps: {
       // No textures - using default cotton material
     },
@@ -69,6 +72,7 @@ export const models = {
     id: "man-tshirt",
     label: "Men's T-Shirt",
     obj: "/models/man-tshirt/base.obj",
+    glb: "/models/man-tshirt/base.glb",
     maps: {
       // No textures - using default cotton material
     },
@@ -83,6 +87,7 @@ export const models = {
     id: "women-tshirt",
     label: "Women's T-Shirt",
     obj: "/models/women-tshirt/base.obj",
+    glb: "/models/women-tshirt/base.glb",
     maps: {
       // No textures - using default cotton material
     },
@@ -97,6 +102,7 @@ export const models = {
     id: "baseball-cap",
     label: "Baseball Cap",
     obj: "/models/baseball-cap/base.obj",
+    glb: "/models/baseball-cap/base.glb",
     maps: {
       // No textures - using default cotton material
     },
@@ -109,6 +115,7 @@ export const models = {
     id: "bag",
     label: "Tote Bag",
     obj: "/models/bag/base.obj",
+    glb: "/models/bag/base.glb",
     maps: {
       diffuse: "/models/bag/texture_diffuse.jpg",
     },
