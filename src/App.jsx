@@ -32,15 +32,39 @@ const Checkout    = lazy(() => import("./pages/Checkout.jsx"));
  * Calling useGLTF.preload() here starts the GLB download in parallel
  * with the JS chunk so both resolve at roughly the same time → one spinner.
  */
+// Full-screen loader that matches the editor canvas loading style
+function EditorLoader() {
+  return (
+    <div className="fixed inset-0 bg-primary grid place-items-center z-50">
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+        <div style={{ position: "relative", width: "52px", height: "52px" }}>
+          <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.07)" }} />
+          <div
+            className="animate-spin"
+            style={{
+              position: "absolute", inset: 0, borderRadius: "50%",
+              border: "2px solid transparent",
+              borderTopColor: "#6366F1",
+              borderRightColor: "rgba(99,102,241,0.25)",
+            }}
+          />
+        </div>
+        <span style={{ color: "rgba(255,255,255,0.45)", fontSize: "13px", letterSpacing: "0.04em" }}>
+          Loading 3D model…
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function EditorRoute() {
   const { id } = useParams();
   const product = findProduct(id) || products[0];
   const glbPath = models[product.modelId]?.glb || `/models/${product.modelId}/base.glb`;
+  // Start GLB download in parallel with the JS chunk
   useGLTF.preload(glbPath);
-  // Use fallback={null} so the outer PageLoader never shows for the editor.
-  // The canvas's own LoadingBox handles the 3D model loading indicator.
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<EditorLoader />}>
       <Editor />
     </Suspense>
   );
