@@ -36,9 +36,14 @@ function EditorRoute() {
   const { id } = useParams();
   const product = findProduct(id) || products[0];
   const glbPath = models[product.modelId]?.glb || `/models/${product.modelId}/base.glb`;
-  // Idempotent — safe to call during render; just kicks off the fetch.
   useGLTF.preload(glbPath);
-  return <Editor />;
+  // Use fallback={null} so the outer PageLoader never shows for the editor.
+  // The canvas's own LoadingBox handles the 3D model loading indicator.
+  return (
+    <Suspense fallback={null}>
+      <Editor />
+    </Suspense>
+  );
 }
 
 // Minimal full-screen spinner shown while a lazy chunk loads
