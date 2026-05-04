@@ -57,7 +57,10 @@ export default function ShirtCanvas({ modelId, editable = false, editingSide = n
         <ambientLight intensity={0.35} />
         {/* Single key light — upper-right front, moderate intensity */}
         <directionalLight position={[4, 6, 3]} intensity={1.0} />
-        <Suspense fallback={<LoadingBox />}>
+        {/* fallback=null: the outer Suspense in App.jsx already shows the
+            full-screen spinner. Rendering null here means the canvas stays
+            blank for the brief overlap instead of showing a second spinner. */}
+        <Suspense fallback={null}>
           <Bounds fit clip observe margin={1.2}>
             <Center>
               <Shirt 

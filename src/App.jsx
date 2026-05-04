@@ -1,21 +1,13 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useParams } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import Layout from "./components/layout/Layout.jsx";
 import { useContentStore } from "./store/contentStore.js";
 import { useGLTF } from "@react-three/drei";
+import { findProduct, products } from "./utils/products.js";
+import { models } from "./utils/models.js";
 
-// Start Draco decoder + model preloads immediately so GLBs are cached
-// before the user ever opens the editor.
+// Set the Draco decoder path once at module scope.
 useGLTF.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
-[
-  '/models/man-polo-shirt/base.glb',
-  '/models/women-polo-shirt/base.glb',
-  '/models/man-hoodie/base.glb',
-  '/models/man-tshirt/base.glb',
-  '/models/women-tshirt/base.glb',
-  '/models/baseball-cap/base.glb',
-  '/models/bag/base.glb',
-].forEach((p) => useGLTF.preload(p));
 
 // Eagerly load the home page (most common first hit)
 import Home from "./pages/Home.jsx";
@@ -35,14 +27,25 @@ const Cart        = lazy(() => import("./pages/Cart.jsx"));
 const Wishlist    = lazy(() => import("./pages/Wishlist.jsx"));
 const Checkout    = lazy(() => import("./pages/Checkout.jsx"));
 
+/**
+ * Thin wrapper rendered before the lazy Editor chunk.
+ * Calling useGLTF.preload() here starts the GLB download in parallel
+ * with the JS chunk so both resolve at roughly the same time → one spinner.
+ */
+function EditorRoute() {
+  const { id } = useParams();
+  const product = findProduct(id) || products[0];
+  const glbPath = models[product.modelId]?.glb || `/models/${product.modelId}/base.glb`;
+  // Idempotent — safe to call during render; just kicks off the fetch.
+  useGLTF.preload(glbPath);
+  return <Editor />;
+}
+
 // Minimal full-screen spinner shown while a lazy chunk loads
 function PageLoader() {
   return (
     <div className="fixed inset-0 bg-primary grid place-items-center z-50">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-9 h-9 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-        <p className="text-white/40 text-sm">Loading 3D model…</p>
-      </div>
+      <div className="w-9 h-9 border-2 border-accent border-t-transparent rounded-full animate-spin" />
     </div>
   );
 }
@@ -58,7 +61,7 @@ export default function App() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
-        <Route path="/editor/:id?" element={<Editor />} />
+        <Route path="/editor/:id?" element={<EditorRoute />} />
         <Route path="/mash/:modelId?" element={<Mash />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/cart" element={<Cart />} />
